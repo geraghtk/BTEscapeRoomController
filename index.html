@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape Room Prop Controller</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="page-header">
+    <h1>Escape Room Prop Controller</h1>
+    <p class="subtitle">Bluetooth LE remote for escape-room props</p>
+  </header>
+
+  <div id="compat-warning" class="warning hidden">
+    <strong>Web Bluetooth is not available in this browser.</strong>
+    <p>
+      Use desktop <em>Chrome</em> or <em>Edge</em>, <em>Chrome</em> on Android, or
+      <em>Bluefy</em> on iOS (Safari itself does not support Web Bluetooth). The page
+      must also be served over HTTPS (GitHub Pages satisfies this).
+    </p>
+  </div>
+
+  <main class="props-grid">
+    <!-- ============== TREASURE HUNT ============== -->
+    <section class="prop-card" data-prop="treasurehunt">
+      <header class="prop-header">
+        <div class="title-row">
+          <h2>Treasure Hunt</h2>
+          <span class="status-pill" data-status>Disconnected</span>
+        </div>
+        <p class="prop-desc">
+          BLE beacon scavenger hunt on the ESP32-C3 with e-paper display. Use these
+          controls to override the current clue without finding the physical beacon.
+        </p>
+      </header>
+
+      <div class="connect-row">
+        <button class="btn btn-primary" data-action="connect">Connect</button>
+        <button class="btn btn-ghost" data-action="disconnect" disabled>Disconnect</button>
+      </div>
+
+      <div class="controls" data-controls disabled>
+        <h3>Hunt control</h3>
+        <div class="btn-row">
+          <button class="btn" data-send="0">Reset to title</button>
+          <button class="btn btn-accent" data-send="1">Start hunt</button>
+        </div>
+
+        <h3>Jump to clue</h3>
+        <p class="hint">
+          The firmware treats <code>0</code> as <em>reset</em> and <code>1</code> as
+          <em>start</em>, so jumps are only available for clues 2–5. To resume from
+          clue 0 (Flower) or 1 (Strawberry), reset and then start; clue index is
+          loaded from saved progress in NVS.
+        </p>
+        <div class="btn-row btn-row-grid">
+          <button class="btn" data-send="2">Clue 2<br /><small>Dog</small></button>
+          <button class="btn" data-send="3">Clue 3<br /><small>Cat</small></button>
+          <button class="btn" data-send="4">Clue 4<br /><small>Dumbo</small></button>
+          <button class="btn" data-send="5">Clue 5<br /><small>Penguin</small></button>
+        </div>
+
+        <h3>Custom command</h3>
+        <form class="custom-row" data-custom-form>
+          <input
+            type="text"
+            class="text-input"
+            data-custom-input
+            placeholder="e.g. 3"
+            autocomplete="off"
+          />
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============== VOICE RECOGNIZER ============== -->
+    <section class="prop-card" data-prop="voice">
+      <header class="prop-header">
+        <div class="title-row">
+          <h2>Voice Recognizer</h2>
+          <span class="status-pill" data-status>Disconnected</span>
+        </div>
+        <p class="prop-desc">
+          NFC animal-sound prop on the ESP32 (advertises as <code>VoiceRecognizer</code>
+          using the Nordic UART Service). Adjust speaker volume remotely.
+        </p>
+      </header>
+
+      <div class="connect-row">
+        <button class="btn btn-primary" data-action="connect">Connect</button>
+        <button class="btn btn-ghost" data-action="disconnect" disabled>Disconnect</button>
+      </div>
+
+      <div class="controls" data-controls disabled>
+        <h3>Volume <span class="muted">(0–30)</span></h3>
+        <div class="slider-row">
+          <input
+            type="range"
+            min="0"
+            max="30"
+            step="1"
+            value="15"
+            class="slider"
+            data-volume-slider
+          />
+          <output class="slider-value" data-volume-value>15</output>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-accent" data-volume-send>Set volume</button>
+          <button class="btn" data-send="?">Query status (?)</button>
+        </div>
+
+        <h3>Custom command</h3>
+        <form class="custom-row" data-custom-form>
+          <input
+            type="text"
+            class="text-input"
+            data-custom-input
+            placeholder="e.g. v10 or ?"
+            autocomplete="off"
+          />
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <section class="log-card">
+    <header class="log-header">
+      <h2>Activity log</h2>
+      <button class="btn btn-ghost btn-small" id="clear-log">Clear</button>
+    </header>
+    <div class="log" id="log" aria-live="polite"></div>
+  </section>
+
+  <footer class="page-footer">
+    <p>
+      Requires a browser with Web Bluetooth: desktop Chrome/Edge, Chrome on Android, or
+      Bluefy on iOS. Connections must be started by a button press (browser security
+      requirement).
+    </p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
