@@ -6,7 +6,16 @@
 //    - Advertises a custom service with one writable string characteristic.
 //    - Service:        12345678-1234-1234-1234-1234567890ab
 //    - Characteristic: abcd1234-abcd-1234-abcd-12345678abcd  (WRITE)
-//    - Accepts ASCII payloads: "0" = reset, "1" = start, "0".."5" = jump to clue.
+//    - Firmware command parsing (BLE_TreasureHunt.ino `currentClueCallback`):
+//        value == "0"          -> reset to title (returns early)
+//        value == "1"          -> start hunt from saved progress (returns early)
+//        else if atoi in 0..5  -> jump directly to that clue index
+//    - The two `return` early-exits mean bare "0" / "1" payloads can never reach
+//      the jump handler, so we can't use "0" / "1" to force-jump to Flower /
+//      Strawberry. Workaround: prefix the digit with a space — e.g. " 0" — which
+//      fails both string-equality checks but still parses via atoi(). That's why
+//      the "Jump to clue" buttons in index.html send " 0".." 5" instead of bare
+//      digits. The "Reset" and "Start" buttons still send bare "0" / "1".
 //
 // 2. Voice Recognizer (ESP32 in ~/voice-recognizer)
 //    - Advertises name "VoiceRecognizer" using the Nordic UART Service (NUS).

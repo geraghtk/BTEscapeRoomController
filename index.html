@@ -56,16 +56,16 @@
 
         <h3>Jump to clue</h3>
         <p class="hint">
-          The firmware treats <code>0</code> as <em>reset</em> and <code>1</code> as
-          <em>start</em>, so jumps are only available for clues 2–5. To resume from
-          clue 0 (Flower) or 1 (Strawberry), reset and then start; clue index is
-          loaded from saved progress in NVS.
+          These force an immediate jump to the chosen clue and overwrite saved progress
+          in NVS. Use <em>Start hunt</em> above to resume from the saved clue instead.
         </p>
         <div class="btn-row btn-row-grid">
-          <button class="btn" data-send="2">Clue 2<br /><small>Dog</small></button>
-          <button class="btn" data-send="3">Clue 3<br /><small>Cat</small></button>
-          <button class="btn" data-send="4">Clue 4<br /><small>Dumbo</small></button>
-          <button class="btn" data-send="5">Clue 5<br /><small>Penguin</small></button>
+          <button class="btn" data-send=" 0">Clue 1<br /><small>Flower</small></button>
+          <button class="btn" data-send=" 1">Clue 2<br /><small>Strawberry</small></button>
+          <button class="btn" data-send=" 2">Clue 3<br /><small>Dog</small></button>
+          <button class="btn" data-send=" 3">Clue 4<br /><small>Cat</small></button>
+          <button class="btn" data-send=" 4">Clue 5<br /><small>Dumbo</small></button>
+          <button class="btn" data-send=" 5">Clue 6<br /><small>Penguin</small></button>
         </div>
 
         <h3>Custom command</h3>
