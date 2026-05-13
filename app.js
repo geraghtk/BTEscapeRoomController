@@ -30,6 +30,14 @@ const PROP_CONFIG = {
     requestOptions: () => ({
       filters: [{ services: ["12345678-1234-1234-1234-1234567890ab"] }],
     }),
+    // Fallback used by the "Show all devices" button — some Web Bluetooth
+    // implementations (Bluefy in particular) miss the service UUID when it
+    // lives in the BLE scan response rather than the primary advertisement.
+    // acceptAllDevices is forbidden together with `filters`.
+    acceptAllOptions: () => ({
+      acceptAllDevices: true,
+      optionalServices: ["12345678-1234-1234-1234-1234567890ab"],
+    }),
     hasNotify: false,
   },
   voice: {
@@ -37,11 +45,18 @@ const PROP_CONFIG = {
     service: "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
     writeChar: "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
     notifyChar: "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    // namePrefix is more forgiving than `name` (some platforms truncate the
+    // local-name field). We also keep the service-UUID filter as a fallback
+    // in case the name isn't visible at all.
     requestOptions: () => ({
       filters: [
-        { name: "VoiceRecognizer" },
+        { namePrefix: "Voice" },
         { services: ["6e400001-b5a3-f393-e0a9-e50e24dcca9e"] },
       ],
+      optionalServices: ["6e400001-b5a3-f393-e0a9-e50e24dcca9e"],
+    }),
+    acceptAllOptions: () => ({
+      acceptAllDevices: true,
       optionalServices: ["6e400001-b5a3-f393-e0a9-e50e24dcca9e"],
     }),
     hasNotify: true,
@@ -92,6 +107,7 @@ function setStatus(propKey, state) {
   const controls = card.querySelector("[data-controls]");
   const connectBtn = card.querySelector('[data-action="connect"]');
   const disconnectBtn = card.querySelector('[data-action="disconnect"]');
+  const connectAllBtn = card.querySelector('[data-action="connect-all"]');
 
   pill.classList.remove("connected", "connecting");
 
@@ -101,21 +117,24 @@ function setStatus(propKey, state) {
     controls.removeAttribute("disabled");
     connectBtn.disabled = true;
     disconnectBtn.disabled = false;
+    if (connectAllBtn) connectAllBtn.disabled = true;
   } else if (state === "connecting") {
     pill.textContent = "Connecting…";
     pill.classList.add("connecting");
     controls.setAttribute("disabled", "");
     connectBtn.disabled = true;
     disconnectBtn.disabled = true;
+    if (connectAllBtn) connectAllBtn.disabled = true;
   } else {
     pill.textContent = "Disconnected";
     controls.setAttribute("disabled", "");
     connectBtn.disabled = false;
     disconnectBtn.disabled = true;
+    if (connectAllBtn) connectAllBtn.disabled = false;
   }
 }
 
-async function connect(propKey) {
+async function connect(propKey, options = { acceptAll: false }) {
   const config = PROP_CONFIG[propKey];
   if (!navigator.bluetooth) {
     log("error", "Web Bluetooth is not available in this browser.", propKey);
@@ -124,9 +143,18 @@ async function connect(propKey) {
 
   try {
     setStatus(propKey, "connecting");
-    log("info", "Requesting device…", propKey);
+    const requestOpts = options.acceptAll
+      ? config.acceptAllOptions()
+      : config.requestOptions();
+    log(
+      "info",
+      options.acceptAll
+        ? "Requesting device (showing all nearby devices)…"
+        : "Requesting device…",
+      propKey,
+    );
 
-    const device = await navigator.bluetooth.requestDevice(config.requestOptions());
+    const device = await navigator.bluetooth.requestDevice(requestOpts);
 
     log("info", `Selected "${device.name || "(no name)"}" — connecting GATT…`, propKey);
 
@@ -208,6 +236,13 @@ function wireProp(propKey) {
   card
     .querySelector('[data-action="connect"]')
     .addEventListener("click", () => connect(propKey));
+
+  const showAllBtn = card.querySelector('[data-action="connect-all"]');
+  if (showAllBtn) {
+    showAllBtn.addEventListener("click", () =>
+      connect(propKey, { acceptAll: true }),
+    );
+  }
 
   card
     .querySelector('[data-action="disconnect"]')
