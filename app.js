@@ -130,15 +130,16 @@ const decoder = new TextDecoder();
 
 function log(tag, message, propKey) {
   const entry = document.createElement("div");
-  entry.className = "log-entry";
+  entry.className = `log-entry log-entry--${tag}`;
+  if (propKey) entry.dataset.prop = propKey;
 
   const time = new Date().toLocaleTimeString([], { hour12: false });
-  const tagClass = `log-tag-${tag}`;
-  const tagText = propKey ? `${tag.toUpperCase()} · ${PROP_CONFIG[propKey].label}` : tag.toUpperCase();
+  const propLabel = propKey ? PROP_CONFIG[propKey].label : "";
 
   entry.innerHTML = `
     <span class="log-time">${time}</span>
-    <span class="log-tag ${tagClass}">${escapeHtml(tagText)}</span>
+    <span class="log-channel">${escapeHtml(tag.toUpperCase())}</span>
+    ${propKey ? `<span class="log-prop">${escapeHtml(propLabel)}</span>` : ""}
     <span class="log-msg">${escapeHtml(message)}</span>
   `;
   logEl.appendChild(entry);
@@ -165,10 +166,12 @@ function setStatus(propKey, state) {
   const connectAllBtn = card.querySelector('[data-action="connect-all"]');
 
   pill.classList.remove("connected", "connecting");
+  card.classList.remove("is-connected", "is-connecting");
 
   if (state === "connected") {
     pill.textContent = "Connected";
     pill.classList.add("connected");
+    card.classList.add("is-connected");
     controls.removeAttribute("disabled");
     connectBtn.disabled = true;
     disconnectBtn.disabled = false;
@@ -176,6 +179,7 @@ function setStatus(propKey, state) {
   } else if (state === "connecting") {
     pill.textContent = "Connecting…";
     pill.classList.add("connecting");
+    card.classList.add("is-connecting");
     controls.setAttribute("disabled", "");
     connectBtn.disabled = true;
     disconnectBtn.disabled = true;
