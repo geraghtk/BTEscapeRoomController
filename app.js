@@ -44,12 +44,15 @@ const PROP_CONFIG = {
     label: "TreasureHunt",
     service: "12345678-1234-1234-1234-1234567890ab",
     writeChar: "abcd1234-abcd-1234-abcd-12345678abcd",
-    // Firmware (~/treasurehunt) advertises the exact name "TreasureHunt".
-    // The service-UUID filter is kept as a fallback in case the device hasn't
-    // been reflashed yet (old firmware advertises the UUID but no name).
+    // Firmware (~/treasurehunt) advertises the exact name "TreasureHunt", but
+    // we filter with `namePrefix` rather than `name`: Bluefy on iOS does not
+    // reliably match the exact-name filter even when the local-name field is
+    // present (it tends to live in the scan response on this stack). The
+    // service-UUID filter is kept as a further fallback in case the device
+    // hasn't been reflashed yet (old firmware advertises the UUID but no name).
     requestOptions: () => ({
       filters: [
-        { name: "TreasureHunt" },
+        { namePrefix: "TreasureHunt" },
         { services: ["12345678-1234-1234-1234-1234567890ab"] },
       ],
       optionalServices: ["12345678-1234-1234-1234-1234567890ab"],
@@ -69,13 +72,14 @@ const PROP_CONFIG = {
     service: "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
     writeChar: "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
     notifyChar: "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
-    // Firmware (~/voice-recognizer) advertises the exact name "VoiceRecognizer".
-    // The service-UUID filter is kept as a fallback in case the name isn't
-    // visible (e.g. older firmware, or a platform that drops the local-name
-    // field).
+    // Firmware (~/voice-recognizer) advertises the exact name "VoiceRecognizer",
+    // but we filter by `namePrefix` for Bluefy/iOS — the exact-name filter
+    // doesn't reliably match there (the local-name field is read from the
+    // scan response on that stack, and Bluefy quirks make exact match miss).
+    // Service-UUID filter is kept as a further fallback.
     requestOptions: () => ({
       filters: [
-        { name: "VoiceRecognizer" },
+        { namePrefix: "VoiceRecognizer" },
         { services: ["6e400001-b5a3-f393-e0a9-e50e24dcca9e"] },
       ],
       optionalServices: ["6e400001-b5a3-f393-e0a9-e50e24dcca9e"],
@@ -91,12 +95,12 @@ const PROP_CONFIG = {
     service: "a17a0001-1234-4321-abcd-1234567890ab",
     writeChar: "a17a0002-1234-4321-abcd-1234567890ab",
     notifyChar: "a17a0003-1234-4321-abcd-1234567890ab",
-    // Firmware (~/AnimalRaw/esp32) advertises the exact name "AnimalRaw".
-    // Service-UUID filter is kept as a fallback for the same reason as the
-    // other props (older firmware, or platforms that drop the local name).
+    // Firmware (~/AnimalRaw/esp32) advertises the exact name "AnimalRaw", but
+    // we filter via `namePrefix` for Bluefy/iOS compatibility — same reason
+    // as the other two props. Service-UUID filter kept as a further fallback.
     requestOptions: () => ({
       filters: [
-        { name: "AnimalRaw" },
+        { namePrefix: "AnimalRaw" },
         { services: ["a17a0001-1234-4321-abcd-1234567890ab"] },
       ],
       optionalServices: ["a17a0001-1234-4321-abcd-1234567890ab"],
