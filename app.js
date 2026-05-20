@@ -44,13 +44,17 @@ const PROP_CONFIG = {
     label: "TreasureHunt",
     service: "12345678-1234-1234-1234-1234567890ab",
     writeChar: "abcd1234-abcd-1234-abcd-12345678abcd",
-    // Firmware (~/treasurehunt) advertises name "TreasureHunt", but the prefix
-    // is intentionally SHORT ("Treasure" instead of the full name): Bluefy on
-    // iOS matches its `namePrefix` filter against whatever portion of the name
-    // it sees in the primary advertising packet, and the full name is too long
-    // to fit reliably there — using "TreasureHunt" as the prefix surfaces no
-    // device. Short prefix → matches, longer prefix → empty picker on iOS.
-    // The service-UUID filter is kept as a further fallback for legacy firmware.
+    // Two filters because Web Bluetooth handles `name` and `services` filters
+    // differently across platforms:
+    //   - Chrome / desktop Edge / Android: matches via the namePrefix entry
+    //     (CoreBluetooth's name limitation doesn't apply).
+    //   - Bluefy on iOS: iOS has no OS-level name-based scan filter, so the
+    //     namePrefix entry never matches. The services entry is what surfaces
+    //     the device — and only works because the firmware (post-2026-05) now
+    //     puts the service UUID in the primary advertising packet, with the
+    //     local name moved to the scan response. (Pre-2026-05 firmware kept
+    //     the name in the primary packet and omitted the UUID, which made
+    //     the prop completely invisible to a filtered requestDevice on iOS.)
     requestOptions: () => ({
       filters: [
         { namePrefix: "Treasure" },
@@ -73,12 +77,11 @@ const PROP_CONFIG = {
     service: "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
     writeChar: "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
     notifyChar: "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
-    // Firmware (~/voice-recognizer) advertises name "VoiceRecognizer", but the
-    // prefix is intentionally SHORT ("Voice"): Bluefy on iOS only matches the
-    // namePrefix filter against the truncated name in the primary advertising
-    // packet, and the full 15-char name can't be relied on to fit there.
-    // Using "VoiceRecognizer" as the prefix produces an empty picker on iOS.
-    // Service-UUID filter kept as a further fallback for older firmware.
+    // Two filters for the same reason as Treasure Hunt above — namePrefix is
+    // the Chrome/Android path; the services entry is what makes the prop
+    // discoverable on Bluefy/iOS now that the firmware advertises the NUS
+    // service UUID in the primary packet (with the name moved to the scan
+    // response). See the longer note on the treasurehunt entry.
     requestOptions: () => ({
       filters: [
         { namePrefix: "Voice" },
@@ -97,10 +100,8 @@ const PROP_CONFIG = {
     service: "a17a0001-1234-4321-abcd-1234567890ab",
     writeChar: "a17a0002-1234-4321-abcd-1234567890ab",
     notifyChar: "a17a0003-1234-4321-abcd-1234567890ab",
-    // Firmware (~/AnimalRaw/esp32) advertises name "AnimalRaw"; prefix is
-    // intentionally SHORT ("Animal") to survive Bluefy/iOS's truncated-name
-    // filter matching — same reason as the other props. Service-UUID filter
-    // kept as a further fallback.
+    // Two filters — namePrefix for Chrome/Android, services for Bluefy/iOS.
+    // See the longer note on the treasurehunt entry.
     requestOptions: () => ({
       filters: [
         { namePrefix: "Animal" },
