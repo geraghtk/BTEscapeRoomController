@@ -28,6 +28,13 @@
         <div class="title-row">
           <h2>Treasure Hunt</h2>
           <span class="status-pill" data-status>Disconnected</span>
+          <button
+            type="button"
+            class="collapse-toggle"
+            data-collapse-toggle
+            aria-label="Collapse card"
+            aria-expanded="true"
+          >▾</button>
         </div>
         <p class="prop-desc">
           BLE beacon scavenger hunt on the ESP32-C3 with e-paper display. Use these
@@ -88,6 +95,13 @@
         <div class="title-row">
           <h2>Voice Recognizer</h2>
           <span class="status-pill" data-status>Disconnected</span>
+          <button
+            type="button"
+            class="collapse-toggle"
+            data-collapse-toggle
+            aria-label="Collapse card"
+            aria-expanded="true"
+          >▾</button>
         </div>
         <p class="prop-desc">
           NFC animal-sound prop on the ESP32 (advertises as <code>VoiceRecognizer</code>
@@ -133,6 +147,79 @@
             class="text-input"
             data-custom-input
             placeholder="e.g. v10 or ?"
+            autocomplete="off"
+          />
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============== ANIMAL RAW ============== -->
+    <section class="prop-card" data-prop="animalraw">
+      <header class="prop-header">
+        <div class="title-row">
+          <h2>Animal Raw</h2>
+          <span class="status-pill" data-status>Disconnected</span>
+          <button
+            type="button"
+            class="collapse-toggle"
+            data-collapse-toggle
+            aria-label="Collapse card"
+            aria-expanded="true"
+          >▾</button>
+        </div>
+        <p class="prop-desc">
+          Monkey-sound crate. Nicla Voice classifies the audio; the ESP32 (advertises
+          as <code>AnimalRaw</code>) combines that with a loudness gate and drives the
+          maglock. Disarm during room setup so the prop can't trip before the kids
+          have the clue.
+        </p>
+      </header>
+
+      <div class="connect-row">
+        <button class="btn btn-primary" data-action="connect">Connect</button>
+        <button class="btn btn-ghost" data-action="disconnect" disabled>Disconnect</button>
+      </div>
+      <button
+        class="link-btn"
+        data-action="connect-all"
+        title="Skip the name/service filter and show every nearby BLE device."
+      >
+        Can't find it? Show all nearby devices →
+      </button>
+
+      <div class="controls" data-controls disabled>
+        <h3>Maglock</h3>
+        <p class="hint">
+          <em>Lock</em> / <em>Unlock</em> force the relay and suspend automatic
+          control until <em>Resume auto</em> (or <em>Reset</em>) hands it back to
+          the sound-detection pipeline.
+        </p>
+        <div class="btn-row">
+          <button class="btn" data-send="lock">Lock</button>
+          <button class="btn btn-accent" data-send="unlock">Unlock</button>
+          <button class="btn" data-send="auto">Resume auto</button>
+        </div>
+
+        <h3>Sound detection</h3>
+        <div class="btn-row">
+          <button class="btn" data-send="arm">Arm (listen)</button>
+          <button class="btn" data-send="disarm">Disarm (ignore sound)</button>
+        </div>
+
+        <h3>Other</h3>
+        <div class="btn-row">
+          <button class="btn" data-send="reset">Reset</button>
+          <button class="btn" data-send="?">Query status (?)</button>
+        </div>
+
+        <h3>Custom command</h3>
+        <form class="custom-row" data-custom-form>
+          <input
+            type="text"
+            class="text-input"
+            data-custom-input
+            placeholder="e.g. arm or unlock"
             autocomplete="off"
           />
           <button class="btn" type="submit">Send</button>

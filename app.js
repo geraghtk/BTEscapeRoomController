@@ -1,6 +1,6 @@
 // Escape Room Prop Controller — Web Bluetooth client.
 //
-// Talks to two BLE peripherals:
+// Talks to three BLE peripherals:
 //
 // 1. Treasure Hunt (ESP32-C3 in ~/treasurehunt)
 //    - Advertises a custom service with one writable string characteristic.
@@ -24,6 +24,16 @@
 //    - TX (NOTIFY — device -> host): 6E400003-B5A3-F393-E0A9-E50E24DCCA9E
 //    - Commands: "v0".."v30" (volume), "?" (status).
 //
+// 3. AnimalRaw (ESP32 in ~/AnimalRaw/esp32)
+//    - Advertises name "AnimalRaw" with a custom NUS-style service.
+//    - Service: a17a0001-1234-4321-abcd-1234567890ab
+//    - WRITE:   a17a0002-1234-4321-abcd-1234567890ab  (host -> device)
+//    - NOTIFY:  a17a0003-1234-4321-abcd-1234567890ab  (device -> host)
+//    - Commands: "reset", "lock", "unlock", "auto", "arm", "disarm", "?".
+//      `lock` / `unlock` set the relay and suspend auto-control until `auto`
+//      or `reset` resumes it. `arm` / `disarm` gates the Nicla sound input
+//      so the prop can be silenced during room setup.
+//
 // Web Bluetooth requires a user gesture for requestDevice() and a secure
 // context (HTTPS or localhost) — GitHub Pages serves both.
 
@@ -34,10 +44,15 @@ const PROP_CONFIG = {
     label: "TreasureHunt",
     service: "12345678-1234-1234-1234-1234567890ab",
     writeChar: "abcd1234-abcd-1234-abcd-12345678abcd",
-    // The firmware does BLEDevice::init("") so it advertises with no name.
-    // Filter by the service UUID so the browser still surfaces it.
+    // Firmware (~/treasurehunt) advertises the exact name "TreasureHunt".
+    // The service-UUID filter is kept as a fallback in case the device hasn't
+    // been reflashed yet (old firmware advertises the UUID but no name).
     requestOptions: () => ({
-      filters: [{ services: ["12345678-1234-1234-1234-1234567890ab"] }],
+      filters: [
+        { name: "TreasureHunt" },
+        { services: ["12345678-1234-1234-1234-1234567890ab"] },
+      ],
+      optionalServices: ["12345678-1234-1234-1234-1234567890ab"],
     }),
     // Fallback used by the "Show all devices" button — some Web Bluetooth
     // implementations (Bluefy in particular) miss the service UUID when it
@@ -54,12 +69,13 @@ const PROP_CONFIG = {
     service: "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
     writeChar: "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
     notifyChar: "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
-    // namePrefix is more forgiving than `name` (some platforms truncate the
-    // local-name field). We also keep the service-UUID filter as a fallback
-    // in case the name isn't visible at all.
+    // Firmware (~/voice-recognizer) advertises the exact name "VoiceRecognizer".
+    // The service-UUID filter is kept as a fallback in case the name isn't
+    // visible (e.g. older firmware, or a platform that drops the local-name
+    // field).
     requestOptions: () => ({
       filters: [
-        { namePrefix: "Voice" },
+        { name: "VoiceRecognizer" },
         { services: ["6e400001-b5a3-f393-e0a9-e50e24dcca9e"] },
       ],
       optionalServices: ["6e400001-b5a3-f393-e0a9-e50e24dcca9e"],
@@ -70,12 +86,34 @@ const PROP_CONFIG = {
     }),
     hasNotify: true,
   },
+  animalraw: {
+    label: "AnimalRaw",
+    service: "a17a0001-1234-4321-abcd-1234567890ab",
+    writeChar: "a17a0002-1234-4321-abcd-1234567890ab",
+    notifyChar: "a17a0003-1234-4321-abcd-1234567890ab",
+    // Firmware (~/AnimalRaw/esp32) advertises the exact name "AnimalRaw".
+    // Service-UUID filter is kept as a fallback for the same reason as the
+    // other props (older firmware, or platforms that drop the local name).
+    requestOptions: () => ({
+      filters: [
+        { name: "AnimalRaw" },
+        { services: ["a17a0001-1234-4321-abcd-1234567890ab"] },
+      ],
+      optionalServices: ["a17a0001-1234-4321-abcd-1234567890ab"],
+    }),
+    acceptAllOptions: () => ({
+      acceptAllDevices: true,
+      optionalServices: ["a17a0001-1234-4321-abcd-1234567890ab"],
+    }),
+    hasNotify: true,
+  },
 };
 
 // Per-prop runtime state. Populated by connect(), cleared by disconnect().
 const propState = {
   treasurehunt: null,
   voice: null,
+  animalraw: null,
 };
 
 const logEl = document.getElementById("log");
@@ -238,9 +276,35 @@ async function sendCommand(propKey, payload) {
 
 // ---------- UI wiring ----------
 
+function wireCollapseToggle(propKey, card) {
+  const toggle = card.querySelector("[data-collapse-toggle]");
+  if (!toggle) return;
+
+  const storageKey = `propCollapsed:${propKey}`;
+  let savedState = null;
+  try {
+    savedState = localStorage.getItem(storageKey);
+  } catch (_) {} // private-mode Safari etc.
+  if (savedState === "1") {
+    card.classList.add("collapsed");
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", () => {
+    const willCollapse = !card.classList.contains("collapsed");
+    card.classList.toggle("collapsed", willCollapse);
+    toggle.setAttribute("aria-expanded", willCollapse ? "false" : "true");
+    try {
+      localStorage.setItem(storageKey, willCollapse ? "1" : "0");
+    } catch (_) {}
+  });
+}
+
 function wireProp(propKey) {
   const card = document.querySelector(`.prop-card[data-prop="${propKey}"]`);
   if (!card) return;
+
+  wireCollapseToggle(propKey, card);
 
   card
     .querySelector('[data-action="connect"]')

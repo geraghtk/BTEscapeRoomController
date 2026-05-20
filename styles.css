@@ -111,7 +111,6 @@ code {
 .title-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.75rem;
   margin-bottom: 0.5rem;
 }
@@ -119,6 +118,40 @@ code {
 .title-row h2 {
   margin: 0;
   font-size: 1.25rem;
+  flex: 1;
+}
+
+.collapse-toggle {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-small);
+  line-height: 1;
+  transition: transform 0.15s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.collapse-toggle:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.prop-card.collapsed .collapse-toggle {
+  transform: rotate(-90deg);
+}
+
+.prop-card.collapsed .prop-desc,
+.prop-card.collapsed .connect-row,
+.prop-card.collapsed .link-btn,
+.prop-card.collapsed .controls {
+  display: none;
+}
+
+.prop-card.collapsed .prop-header,
+.prop-card.collapsed .title-row {
+  margin-bottom: 0;
 }
 
 .prop-desc {
