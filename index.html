@@ -264,6 +264,68 @@
         </form>
       </div>
     </section>
+
+    <!-- ============== CRATE ============== -->
+    <section class="prop-card" data-prop="crate">
+      <header class="prop-header">
+        <div class="title-row">
+          <h2>Crate</h2>
+          <span class="status-pill" data-status>Disconnected</span>
+          <button
+            type="button"
+            class="collapse-toggle"
+            data-collapse-toggle
+            aria-label="Collapse card"
+            aria-expanded="true"
+          >▾</button>
+        </div>
+        <p class="prop-desc">
+          Six NFC readers on the ESP32 (advertises as <code>Crate</code>). When all
+          six correct beacon tags are placed together the maglock releases and
+          latches open. Use these controls to override the lock or check which
+          readers see their tag.
+        </p>
+      </header>
+
+      <div class="connect-row">
+        <button class="btn btn-primary" data-action="connect">Connect</button>
+        <button class="btn btn-ghost" data-action="disconnect" disabled>Disconnect</button>
+      </div>
+      <button
+        class="link-btn"
+        data-action="connect-all"
+        title="Skip the name/service filter and show every nearby BLE device."
+      >
+        Can't find it? Show all nearby devices →
+      </button>
+
+      <div class="controls" data-controls disabled>
+        <h3>Maglock</h3>
+        <p class="hint">
+          <em>Unlock</em> releases the maglock immediately; <em>Reset</em> re-engages
+          it and re-arms the puzzle. <em>Query status</em> reports which readers
+          see their tag (<code>#</code> placed, <code>.</code> empty/wrong,
+          <code>X</code> reader offline).
+        </p>
+        <div class="btn-row">
+          <button class="btn btn-accent" data-send="unlock">Unlock</button>
+          <button class="btn" data-send="reset">Reset (lock)</button>
+          <button class="btn" data-send="?">Query status (?)</button>
+        </div>
+
+        <h3>Custom command</h3>
+        <form class="custom-row" data-custom-form>
+          <input
+            type="text"
+            class="text-input"
+            data-custom-input
+            placeholder="e.g. unlock or reset"
+            autocomplete="off"
+          />
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
   </main>
 
   <section class="log-card">

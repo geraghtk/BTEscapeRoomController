@@ -44,6 +44,18 @@
 //      or `reset` resumes it. `arm` / `disarm` gates the Nicla sound input
 //      so the prop can be silenced during room setup.
 //
+// 4. Crate (ESP32 in ~/crate)
+//    - Advertises name "Crate" with a custom NUS-style service. Six PN532 NFC
+//      readers; when all six correct beacon tags are placed together the
+//      maglock releases (and latches open until reset).
+//    - Service: c4a7e001-1234-4321-abcd-1234567890ab
+//    - WRITE:   c4a7e002-1234-4321-abcd-1234567890ab  (host -> device)
+//    - NOTIFY:  c4a7e003-1234-4321-abcd-1234567890ab  (device -> host)
+//    - Commands: "unlock" (release maglock), "reset" (re-engage), "?"/"status"
+//      (reply "tags=##.#.. locked|UNLOCKED" — one glyph per reader: # placed,
+//      . empty/wrong, X reader not found). Status is also pushed on notify
+//      whenever a tag is placed/removed or the puzzle solves.
+//
 // Web Bluetooth requires a user gesture for requestDevice() and a secure
 // context (HTTPS or localhost) — GitHub Pages serves both.
 
@@ -125,6 +137,26 @@ const PROP_CONFIG = {
     }),
     hasNotify: true,
   },
+  crate: {
+    label: "Crate",
+    service: "c4a7e001-1234-4321-abcd-1234567890ab",
+    writeChar: "c4a7e002-1234-4321-abcd-1234567890ab",
+    notifyChar: "c4a7e003-1234-4321-abcd-1234567890ab",
+    // Two filters — namePrefix for Chrome/Android, services for Bluefy/iOS.
+    // See the longer note on the treasurehunt entry.
+    requestOptions: () => ({
+      filters: [
+        { namePrefix: "Crate" },
+        { services: ["c4a7e001-1234-4321-abcd-1234567890ab"] },
+      ],
+      optionalServices: ["c4a7e001-1234-4321-abcd-1234567890ab"],
+    }),
+    acceptAllOptions: () => ({
+      acceptAllDevices: true,
+      optionalServices: ["c4a7e001-1234-4321-abcd-1234567890ab"],
+    }),
+    hasNotify: true,
+  },
 };
 
 // Per-prop runtime state. Populated by connect(), cleared by disconnect().
@@ -132,6 +164,7 @@ const propState = {
   treasurehunt: null,
   voice: null,
   animalraw: null,
+  crate: null,
 };
 
 const logEl = document.getElementById("log");
