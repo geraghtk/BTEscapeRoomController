@@ -111,7 +111,8 @@
         </div>
         <p class="prop-desc">
           NFC animal-sound prop on the ESP32 (advertises as <code>VoiceRecognizer</code>
-          using the Nordic UART Service). Adjust speaker volume remotely.
+          using the Nordic UART Service). Adjust speaker volume and trigger any
+          sound remotely.
         </p>
       </header>
 
@@ -146,13 +147,38 @@
           <button class="btn" data-send="?">Query status (?)</button>
         </div>
 
+        <h3>Play a sound</h3>
+        <p class="hint">
+          Triggers the sound directly through the speaker — a preview, played
+          once at the current volume (independent of the NFC tags). The track
+          numbers match the MP3s on the prop's SD card.
+        </p>
+        <div class="btn-row">
+          <button class="btn" data-send="p1">Birds</button>
+          <button class="btn" data-send="p2">Elephant</button>
+          <button class="btn" data-send="p3">Lion</button>
+          <button class="btn" data-send="p4">Horse</button>
+          <button class="btn" data-send="p5">Snake</button>
+          <button class="btn" data-send="p6">Wolf</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn" data-send="p7">Ambient 1</button>
+          <button class="btn" data-send="p8">Ambient 2</button>
+          <button class="btn" data-send="p9">Ambient 3</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn" data-send="p10">Oracle</button>
+          <button class="btn" data-send="p11">Unlocked</button>
+          <button class="btn btn-accent" data-send="stop">Stop</button>
+        </div>
+
         <h3>Custom command</h3>
         <form class="custom-row" data-custom-form>
           <input
             type="text"
             class="text-input"
             data-custom-input
-            placeholder="e.g. v10 or ?"
+            placeholder="e.g. v10, p3, stop, or ?"
             autocomplete="off"
           />
           <button class="btn" type="submit">Send</button>
