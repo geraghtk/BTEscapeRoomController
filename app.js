@@ -9,13 +9,19 @@
 //    - Firmware command parsing (BLE_TreasureHunt.ino `currentClueCallback`):
 //        value == "0"          -> reset to title (returns early)
 //        value == "1"          -> start hunt from saved progress (returns early)
+//        value == "done"       -> force completion: finale screen + victory ring,
+//                                 and loop() triggers the VoiceRecognizer Oracle
+//                                 sound (writes "p10" to it). Returns early — this
+//                                 check is before the atoi() fallback because
+//                                 atoi("done") == 0 would otherwise jump to clue 1.
 //        else if atoi in 0..5  -> jump directly to that clue index
-//    - The two `return` early-exits mean bare "0" / "1" payloads can never reach
-//      the jump handler, so we can't use "0" / "1" to force-jump to Flower /
+//    - The two numeric `return` early-exits mean bare "0" / "1" payloads can never
+//      reach the jump handler, so we can't use "0" / "1" to force-jump to Flower /
 //      Strawberry. Workaround: prefix the digit with a space — e.g. " 0" — which
 //      fails both string-equality checks but still parses via atoi(). That's why
 //      the "Jump to clue" buttons in index.html send " 0".." 5" instead of bare
-//      digits. The "Reset" and "Start" buttons still send bare "0" / "1".
+//      digits. The "Reset" and "Start" buttons still send bare "0" / "1", and
+//      "Complete hunt" sends "done".
 //
 // 2. Voice Recognizer (ESP32 in ~/voice-recognizer)
 //    - Advertises name "VoiceRecognizer" using the Nordic UART Service (NUS).
