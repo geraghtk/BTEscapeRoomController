@@ -353,6 +353,85 @@
         </form>
       </div>
     </section>
+
+    <!-- ============== FLOW PROP ============== -->
+    <section class="prop-card" data-prop="flow">
+      <header class="prop-header">
+        <div class="title-row">
+          <h2>Flow (Potion Pours)</h2>
+          <span class="status-pill" data-status>Disconnected</span>
+          <button
+            type="button"
+            class="collapse-toggle"
+            data-collapse-toggle
+            aria-label="Collapse card"
+            aria-expanded="true"
+          >▾</button>
+        </div>
+        <p class="prop-desc">
+          Potion-pour counter on the ESP32 (advertises as <code>flow-prop</code>).
+          A hall-effect flow meter counts test-tube pours; when the target count
+          is reached it fires the room-complete cue on the Voice Recognizer. Set
+          the target, simulate pours, or force completion from here.
+        </p>
+      </header>
+
+      <div class="connect-row">
+        <button class="btn btn-primary" data-action="connect">Connect</button>
+        <button class="btn btn-ghost" data-action="disconnect" disabled>Disconnect</button>
+      </div>
+      <button
+        class="link-btn"
+        data-action="connect-all"
+        title="Skip the name/service filter and show every nearby BLE device."
+      >
+        Can't find it? Show all nearby devices →
+      </button>
+
+      <div class="controls" data-controls disabled>
+        <h3>Total pours <span class="muted">(1–100)</span></h3>
+        <p class="hint">
+          How many test-tube pours this group must complete before the room is
+          done. Saved on the prop and applied to the next <code>POUR</code> count.
+        </p>
+        <div class="custom-row">
+          <input
+            type="number"
+            min="1"
+            max="100"
+            step="1"
+            value="4"
+            class="text-input"
+            data-target-input
+          />
+          <button class="btn btn-accent" data-target-send>Set total</button>
+        </div>
+
+        <h3>Pours</h3>
+        <div class="btn-row">
+          <button class="btn" data-send="pour">Simulate pour</button>
+          <button class="btn btn-accent" data-send="complete">Trigger complete</button>
+        </div>
+
+        <h3>Other</h3>
+        <div class="btn-row">
+          <button class="btn" data-send="reset">Reset counter</button>
+          <button class="btn" data-send="status">Query status</button>
+        </div>
+
+        <h3>Custom command</h3>
+        <form class="custom-row" data-custom-form>
+          <input
+            type="text"
+            class="text-input"
+            data-custom-input
+            placeholder="e.g. set 6, pour, complete, reset, status"
+            autocomplete="off"
+          />
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
   </main>
 
   <section class="log-card">

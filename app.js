@@ -63,6 +63,20 @@
 //      readers by index). Status is also pushed on notify whenever a tag is
 //      placed/removed or the puzzle solves.
 //
+// 5. flow-prop (ESP32 in ~/flow-prop)
+//    - Advertises name "flow-prop" with a custom service. A hall-effect flow
+//      meter counts test-tube "pours"; at the configured target it emits a
+//      COMPLETE event so the voice prop plays the room-done cue.
+//    - Service: 8f0e7e3a-2c44-4d6b-9b6e-5a1d3f2b1c01
+//    - WRITE  (command): 8f0e7e3a-2c44-4d6b-9b6e-5a1d3f2b1c03  (host -> device)
+//    - NOTIFY (event):   8f0e7e3a-2c44-4d6b-9b6e-5a1d3f2b1c02  (device -> host)
+//    - Commands: "set <n>" (target pours, 1..100, persisted), "pour" (simulate
+//      one pour), "complete" (force the done state — jump to target + COMPLETE),
+//      "reset" (zero the counter), "status". The notify char carries text
+//      events: "POUR n/total PLAY <file>", "COMPLETE n/total PLAY <file>",
+//      "RESET 0/total", plus "TARGET n" / "STATUS n/total" acks. <file> is the
+//      4-digit MP3 the voice prop plays (pours walk 0013..0019, then random).
+//
 // Web Bluetooth requires a user gesture for requestDevice() and a secure
 // context (HTTPS or localhost) — GitHub Pages serves both.
 
@@ -164,6 +178,30 @@ const PROP_CONFIG = {
     }),
     hasNotify: true,
   },
+  flow: {
+    label: "flow-prop",
+    service: "8f0e7e3a-2c44-4d6b-9b6e-5a1d3f2b1c01",
+    // EVENT char is read+notify; COMMAND char (…1c03) is the write target. The
+    // firmware originally exposed only the notify EVENT char (serial-only
+    // commands) — the write char and multi-central advertising were added so the
+    // controller can drive it alongside the voice prop.
+    writeChar: "8f0e7e3a-2c44-4d6b-9b6e-5a1d3f2b1c03",
+    notifyChar: "8f0e7e3a-2c44-4d6b-9b6e-5a1d3f2b1c02",
+    // Two filters — namePrefix for Chrome/Android, services for Bluefy/iOS.
+    // See the longer note on the treasurehunt entry.
+    requestOptions: () => ({
+      filters: [
+        { namePrefix: "flow" },
+        { services: ["8f0e7e3a-2c44-4d6b-9b6e-5a1d3f2b1c01"] },
+      ],
+      optionalServices: ["8f0e7e3a-2c44-4d6b-9b6e-5a1d3f2b1c01"],
+    }),
+    acceptAllOptions: () => ({
+      acceptAllDevices: true,
+      optionalServices: ["8f0e7e3a-2c44-4d6b-9b6e-5a1d3f2b1c01"],
+    }),
+    hasNotify: true,
+  },
 };
 
 // Per-prop runtime state. Populated by connect(), cleared by disconnect().
@@ -172,6 +210,7 @@ const propState = {
   voice: null,
   animalraw: null,
   crate: null,
+  flow: null,
 };
 
 const logEl = document.getElementById("log");
@@ -415,6 +454,26 @@ function wireVoiceVolumeSlider() {
   });
 }
 
+// flow-prop: a number input + button that sends "set <n>" to configure how many
+// pours complete the room. Validates 1–100 (the firmware's accepted range)
+// before sending, so a bad value never goes out over BLE.
+function wireFlowTargetControl() {
+  const card = document.querySelector('.prop-card[data-prop="flow"]');
+  if (!card) return;
+  const input = card.querySelector("[data-target-input]");
+  const sendBtn = card.querySelector("[data-target-send]");
+  if (!input || !sendBtn) return;
+
+  sendBtn.addEventListener("click", () => {
+    const n = parseInt(input.value, 10);
+    if (!Number.isInteger(n) || n < 1 || n > 100) {
+      log("warn", "Total pours must be a whole number 1–100.", "flow");
+      return;
+    }
+    sendCommand("flow", `set ${n}`);
+  });
+}
+
 function init() {
   if (!navigator.bluetooth) {
     document.getElementById("compat-warning").classList.remove("hidden");
@@ -425,6 +484,7 @@ function init() {
 
   Object.keys(PROP_CONFIG).forEach(wireProp);
   wireVoiceVolumeSlider();
+  wireFlowTargetControl();
 
   document.getElementById("clear-log").addEventListener("click", () => {
     logEl.innerHTML = "";
