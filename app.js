@@ -28,22 +28,26 @@
 //    - Service: 6E400001-B5A3-F393-E0A9-E50E24DCCA9E
 //    - RX (WRITE  — host -> device): 6E400002-B5A3-F393-E0A9-E50E24DCCA9E
 //    - TX (NOTIFY — device -> host): 6E400003-B5A3-F393-E0A9-E50E24DCCA9E
-//    - Commands: "v0".."v30" (volume), "p1".."p12" (play a track once at the
+//    - Commands: "v0".."v30" (volume), "p1".."p20" (play a track once at the
 //      current volume — operator preview, bypasses the NFC/ambient logic),
 //      "stop" (silence), "?" (status). Track map (SD /mp3/00NN.mp3):
 //        p1 birds · p2 elephant · p3 lion · p4 horse · p5 snake · p6 wolf
 //        p7..p9 ambient background SFX · p10 Oracle · p11 Unlocked ·
-//        p12 Crate open.
+//        p12 Crate open · p13 Tasty Treat · p14 yup · p15 best ·
+//        p16 I love potions · p17 more · p18 another one · p19 delicious ·
+//        p20 active.
 //
 // 3. AnimalRaw (ESP32 in ~/AnimalRaw/esp32)
 //    - Advertises name "AnimalRaw" with a custom NUS-style service.
 //    - Service: a17a0001-1234-4321-abcd-1234567890ab
 //    - WRITE:   a17a0002-1234-4321-abcd-1234567890ab  (host -> device)
 //    - NOTIFY:  a17a0003-1234-4321-abcd-1234567890ab  (device -> host)
-//    - Commands: "reset", "lock", "unlock", "auto", "arm", "disarm", "?".
-//      `lock` / `unlock` set the relay and suspend auto-control until `auto`
+//    - Commands: "reset", "lock", "unlock", "auto", "arm", "disarm", "monkey",
+//      "?". `lock` / `unlock` set the relay and suspend auto-control until `auto`
 //      or `reset` resumes it. `arm` / `disarm` gates the Nicla sound input
-//      so the prop can be silenced during room setup.
+//      so the prop can be silenced during room setup. `monkey` simulates a Nicla
+//      detection — forces IDLE→LISTENING so the status ring ("left eye") turns
+//      green (then the mic meter must fill to unlock, as in auto play).
 //
 // 4. Crate (ESP32 in ~/crate)
 //    - Advertises name "Crate" with a custom NUS-style service. Six PN532 NFC
