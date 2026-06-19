@@ -28,14 +28,14 @@
 //    - Service: 6E400001-B5A3-F393-E0A9-E50E24DCCA9E
 //    - RX (WRITE  — host -> device): 6E400002-B5A3-F393-E0A9-E50E24DCCA9E
 //    - TX (NOTIFY — device -> host): 6E400003-B5A3-F393-E0A9-E50E24DCCA9E
-//    - Commands: "v0".."v30" (volume), "p1".."p20" (play a track once at the
+//    - Commands: "v0".."v30" (volume), "p1".."p22" (play a track once at the
 //      current volume — operator preview, bypasses the NFC/ambient logic),
 //      "stop" (silence), "?" (status). Track map (SD /mp3/00NN.mp3):
 //        p1 birds · p2 elephant · p3 lion · p4 horse · p5 snake · p6 wolf
 //        p7..p9 ambient background SFX · p10 Oracle · p11 Unlocked ·
 //        p12 Crate open · p13 Tasty Treat · p14 yup · p15 best ·
 //        p16 I love potions · p17 more · p18 another one · p19 delicious ·
-//        p20 active.
+//        p20 active · p21 crate self-test fail · p22 End game.
 //
 // 3. AnimalRaw (ESP32 in ~/AnimalRaw/esp32)
 //    - Advertises name "AnimalRaw" with a custom NUS-style service.
