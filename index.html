@@ -329,7 +329,9 @@
           <em>Unlock</em> releases the maglock immediately; <em>Reset</em> re-engages
           it and re-arms the puzzle. <em>Query status</em> reports which readers
           see their tag (<code>#</code> placed, <code>.</code> empty/wrong,
-          <code>X</code> reader offline).
+          <code>X</code> reader offline), then an explicit
+          <code>readers=N/6</code> summary listing any disconnected readers by
+          index (e.g. <code>readers=4/6 offline:1,5</code>).
         </p>
         <div class="btn-row">
           <button class="btn btn-accent" data-send="unlock">Unlock</button>

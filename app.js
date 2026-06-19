@@ -57,9 +57,11 @@
 //    - WRITE:   c4a7e002-1234-4321-abcd-1234567890ab  (host -> device)
 //    - NOTIFY:  c4a7e003-1234-4321-abcd-1234567890ab  (device -> host)
 //    - Commands: "unlock" (release maglock), "reset" (re-engage), "?"/"status"
-//      (reply "tags=##.#.. locked|UNLOCKED" — one glyph per reader: # placed,
-//      . empty/wrong, X reader not found). Status is also pushed on notify
-//      whenever a tag is placed/removed or the puzzle solves.
+//      (reply "tags=##.#.. locked|UNLOCKED readers=N/6 ok|offline:i,j" — one
+//      glyph per reader: # placed, . empty/wrong, X reader not found; followed
+//      by an explicit reader-connectivity summary that names any disconnected
+//      readers by index). Status is also pushed on notify whenever a tag is
+//      placed/removed or the puzzle solves.
 //
 // Web Bluetooth requires a user gesture for requestDevice() and a secure
 // context (HTTPS or localhost) — GitHub Pages serves both.
